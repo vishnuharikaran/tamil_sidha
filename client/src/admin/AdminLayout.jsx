@@ -1,6 +1,7 @@
 import React from 'react';
-import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
+import { Link, Outlet, useLocation, useNavigate, Navigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
+import LoadingSkeleton from '../components/LoadingSkeleton';
 import { 
   LayoutDashboard, Calendar, Users, FileText, Package, MessageSquare, 
   LogOut, Home, Shield, ChevronRight, PlusCircle 
@@ -8,13 +9,16 @@ import {
 import { CLINIC } from '../constants/clinic';
 
 const AdminLayout = () => {
-  const { admin, logout } = useAuth();
+  const { admin, loading, logout } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
 
+  if (loading) {
+    return <LoadingSkeleton />;
+  }
+
   if (!admin) {
-    navigate('/admin/login');
-    return null;
+    return <Navigate to="/admin/login" replace />;
   }
 
   const todayFormatted = new Date().toLocaleDateString('en-US', {

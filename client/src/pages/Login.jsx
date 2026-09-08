@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, Navigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { Shield, Lock, Mail, ArrowLeft } from 'lucide-react';
 import toast from 'react-hot-toast';
@@ -9,8 +9,12 @@ const Login = () => {
   const [email, setEmail] = useState('admin@tamilsiddhaclinic.com');
   const [password, setPassword] = useState('Admin@1234');
   const [loading, setLoading] = useState(false);
-  const { login } = useAuth();
+  const { admin, login } = useAuth();
   const navigate = useNavigate();
+
+  if (admin) {
+    return <Navigate to="/admin/dashboard" replace />;
+  }
 
   const handleSubmit = async (e) => {
     e.preventDefault();
