@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Calendar, Clock, User, Phone, CheckCircle, ArrowRight, ArrowLeft, AlertCircle, Sparkles } from 'lucide-react';
+import { Calendar, Clock, User, Phone, CheckCircle, ArrowRight, ArrowLeft, AlertCircle, Sparkles, MessageCircle } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import WhatsAppButton from '../components/WhatsAppButton';
+import SEO from '../components/SEO';
 import API from '../utils/api';
 import toast from 'react-hot-toast';
 import { CLINIC } from '../constants/clinic';
@@ -27,12 +28,11 @@ const Booking = () => {
     notes: '',
   });
 
-  // Fetch available slots whenever date changes in Step 2
   const fetchSlots = async (selectedDate) => {
     setLoadingSlots(true);
     try {
       const res = await API.get(`/appointments/slots/${selectedDate}`);
-      setSlotsData(res.data.data);
+      setSlotsData(res.data.data || res.data);
     } catch (err) {
       toast.error('Failed to load available time slots.');
     } finally {
@@ -49,7 +49,7 @@ const Booking = () => {
   const handleStep1Next = (e) => {
     e.preventDefault();
     if (!formData.patientName || !formData.phone || !formData.reason) {
-      toast.error('Please fill in patient name, phone, and health concern.');
+      toast.error('Please fill in patient name, phone, and health concern. / பெயர் மற்றும் தொலைபேசி எண்ணை உள்ளிடவும்.');
       return;
     }
     setStep(2);
@@ -57,7 +57,7 @@ const Booking = () => {
 
   const handleStep2Next = () => {
     if (!formData.timeSlot) {
-      toast.error('Please select a 30-minute appointment time slot.');
+      toast.error('Please select an appointment time slot. / நேரத்தைத் தேர்ந்தெடுக்கவும்.');
       return;
     }
     setStep(3);
@@ -82,8 +82,18 @@ const Booking = () => {
     return d.getDay() === 0;
   };
 
+  const getWhatsAppBookingMsg = () => {
+    const dateFormatted = new Date(formData.date).toLocaleDateString();
+    const message = `Hello Dr. Sakthi Vadivu, I have booked an appointment for ${dateFormatted} at ${formData.timeSlot}. My name is ${formData.patientName}, phone: ${formData.phone}.`;
+    return `https://wa.me/${CLINIC.whatsapp}?text=${encodeURIComponent(message)}`;
+  };
+
   return (
     <div className="min-h-screen flex flex-col bg-cream-50 font-serif">
+      <SEO
+        title="Book Appointment"
+        description="Book your Siddha consultation online with Dr. Sakthi Vadivu at Tamil Siddha Clinic, Viluppuram."
+      />
       <Navbar />
 
       {/* Header */}
@@ -91,7 +101,7 @@ const Booking = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-2">
           <span className="text-xs font-sans font-bold uppercase tracking-widest text-saffron-400 block">Online Booking</span>
           <h1 className="text-3xl sm:text-4xl font-bold font-tamil text-white">
-            Schedule Appointment
+            Schedule Appointment / முன்பதிவு செய்க
           </h1>
           <p className="text-slate-300 font-serif text-sm max-w-xl mx-auto">
             Consult Dr. Sakthi Vadivu at Tamil Siddha Clinic, Viluppuram.
@@ -137,25 +147,38 @@ const Booking = () => {
               </div>
             </div>
 
-            <button
-              onClick={() => {
-                setBookingSuccess(null);
-                setStep(1);
-                setFormData({
-                  patientName: '',
-                  phone: '',
-                  age: '35',
-                  gender: 'Male',
-                  reason: '',
-                  date: new Date().toISOString().split('T')[0],
-                  timeSlot: '',
-                  notes: '',
-                });
-              }}
-              className="bg-forest-800 hover:bg-forest-900 text-white font-sans text-xs font-bold uppercase tracking-wider px-8 py-3 rounded-xl shadow transition-all"
-            >
-              Book Another Appointment
-            </button>
+            {/* WhatsApp Pre-filled Notification Button */}
+            <div className="pt-2 flex flex-col sm:flex-row justify-center gap-3 font-sans text-xs">
+              <a
+                href={getWhatsAppBookingMsg()}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center justify-center space-x-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold uppercase tracking-wider px-6 py-3 rounded-xl shadow transition-all"
+              >
+                <MessageCircle className="w-4 h-4" />
+                <span>Notify Doctor via WhatsApp</span>
+              </a>
+
+              <button
+                onClick={() => {
+                  setBookingSuccess(null);
+                  setStep(1);
+                  setFormData({
+                    patientName: '',
+                    phone: '',
+                    age: '35',
+                    gender: 'Male',
+                    reason: '',
+                    date: new Date().toISOString().split('T')[0],
+                    timeSlot: '',
+                    notes: '',
+                  });
+                }}
+                className="bg-forest-800 hover:bg-forest-900 text-white font-bold uppercase tracking-wider px-6 py-3 rounded-xl shadow transition-all"
+              >
+                Book Another Appointment
+              </button>
+            </div>
           </motion.div>
         ) : (
           <div className="bg-white rounded-3xl p-8 shadow-xl border border-saffron-600/30 space-y-8">
@@ -181,10 +204,10 @@ const Booking = () => {
             {/* Step 1: Patient Details */}
             {step === 1 && (
               <form onSubmit={handleStep1Next} className="space-y-5 font-sans text-xs">
-                <h3 className="text-xl font-bold font-serif text-forest-900">Step 1: Patient Details</h3>
+                <h3 className="text-xl font-bold font-serif text-forest-900">Step 1: Patient Details / நோயாளி விவரங்கள்</h3>
 
                 <div>
-                  <label className="block font-semibold text-slate-700 uppercase mb-1">Full Patient Name *</label>
+                  <label className="block font-semibold text-slate-700 uppercase mb-1">Full Patient Name / பெயர் *</label>
                   <input
                     type="text"
                     required
@@ -197,7 +220,7 @@ const Booking = () => {
 
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                   <div>
-                    <label className="block font-semibold text-slate-700 uppercase mb-1">Phone Number *</label>
+                    <label className="block font-semibold text-slate-700 uppercase mb-1">Phone Number / போன் *</label>
                     <input
                       type="tel"
                       required
@@ -208,7 +231,7 @@ const Booking = () => {
                     />
                   </div>
                   <div>
-                    <label className="block font-semibold text-slate-700 uppercase mb-1">Age *</label>
+                    <label className="block font-semibold text-slate-700 uppercase mb-1">Age / வயது *</label>
                     <input
                       type="number"
                       required
@@ -219,21 +242,21 @@ const Booking = () => {
                     />
                   </div>
                   <div>
-                    <label className="block font-semibold text-slate-700 uppercase mb-1">Gender *</label>
+                    <label className="block font-semibold text-slate-700 uppercase mb-1">Gender / பாலினம் *</label>
                     <select
                       value={formData.gender}
                       onChange={(e) => setFormData({ ...formData, gender: e.target.value })}
                       className="w-full px-3.5 py-2.5 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-saffron-600"
                     >
-                      <option value="Male">Male</option>
-                      <option value="Female">Female</option>
-                      <option value="Other">Other</option>
+                      <option value="Male">Male / ஆண்</option>
+                      <option value="Female">Female / பெண்</option>
+                      <option value="Other">Other / மற்றவை</option>
                     </select>
                   </div>
                 </div>
 
                 <div>
-                  <label className="block font-semibold text-slate-700 uppercase mb-1">Primary Reason for Visit *</label>
+                  <label className="block font-semibold text-slate-700 uppercase mb-1">Primary Reason for Visit / சிகிச்சை *</label>
                   <select
                     value={formData.reason}
                     onChange={(e) => setFormData({ ...formData, reason: e.target.value })}
@@ -277,7 +300,7 @@ const Booking = () => {
             {step === 2 && (
               <div className="space-y-6 font-sans text-xs">
                 <div className="flex justify-between items-center">
-                  <h3 className="text-xl font-bold font-serif text-forest-900">Step 2: Pick Appointment Slot</h3>
+                  <h3 className="text-xl font-bold font-serif text-forest-900">Step 2: Pick Appointment Slot / தேதி மற்றும் நேரம்</h3>
                   <button
                     type="button"
                     onClick={() => setStep(1)}
@@ -373,7 +396,7 @@ const Booking = () => {
             {step === 3 && (
               <div className="space-y-6 font-sans text-xs">
                 <div className="flex justify-between items-center">
-                  <h3 className="text-xl font-bold font-serif text-forest-900">Step 3: Review & Confirm</h3>
+                  <h3 className="text-xl font-bold font-serif text-forest-900">Step 3: Review & Confirm / சரிபார்க்கவும்</h3>
                   <button
                     type="button"
                     onClick={() => setStep(2)}

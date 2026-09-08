@@ -8,11 +8,16 @@ import {
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import WhatsAppButton from '../components/WhatsAppButton';
+import SEO from '../components/SEO';
 import { CLINIC } from '../constants/clinic';
 
 const Home = () => {
   return (
     <div className="min-h-screen flex flex-col bg-cream-50 font-serif">
+      <SEO
+        title="Ancient Wisdom. Modern Healing."
+        description={`Official portal for ${CLINIC.name} in Viluppuram. Dr. Sakthi Vadivu provides authentic Siddha medical care for kidney stones, uterine fibroids, chronic pain, and skin disorders.`}
+      />
       <Navbar />
 
       {/* Hero Section */}
