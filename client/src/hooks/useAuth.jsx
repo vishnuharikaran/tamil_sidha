@@ -10,14 +10,17 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const checkAuth = async () => {
       const token = localStorage.getItem('siddha_admin_token');
-      if (token) {
+      if (token && token !== 'undefined') {
         try {
           const res = await API.get('/auth/me');
-          setAdmin(res.data.admin);
+          const adminData = res.data.data?.admin || res.data.admin;
+          setAdmin(adminData);
         } catch (err) {
           localStorage.removeItem('siddha_admin_token');
           setAdmin(null);
         }
+      } else {
+        localStorage.removeItem('siddha_admin_token');
       }
       setLoading(false);
     };
@@ -26,8 +29,13 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password) => {
     const res = await API.post('/auth/login', { email, password });
-    localStorage.setItem('siddha_admin_token', res.data.token);
-    setAdmin(res.data.admin);
+    const token = res.data.data?.token || res.data.token;
+    const adminData = res.data.data?.admin || res.data.admin;
+
+    if (token) {
+      localStorage.setItem('siddha_admin_token', token);
+      setAdmin(adminData);
+    }
     return res.data;
   };
 
