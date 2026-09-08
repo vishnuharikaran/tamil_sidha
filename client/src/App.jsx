@@ -12,12 +12,14 @@ import Booking from './pages/Booking';
 import Contact from './pages/Contact';
 import Login from './pages/Login';
 
-// Admin Portal
+// Admin Portal Pages
 import AdminLayout from './admin/AdminLayout';
 import Dashboard from './admin/Dashboard';
 import Appointments from './admin/Appointments';
 import Patients from './admin/Patients';
+import PatientProfile from './admin/PatientProfile';
 import MedicalRecords from './admin/MedicalRecords';
+import CreateRecord from './admin/CreateRecord';
 import Inventory from './admin/Inventory';
 import Messages from './admin/Messages';
 
@@ -35,6 +37,7 @@ function App() {
           <Route path="/book" element={<Booking />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/admin/login" element={<Login />} />
 
           {/* Admin Protected Portal Routes */}
           <Route path="/admin" element={<AdminLayout />}>
@@ -42,7 +45,9 @@ function App() {
             <Route path="dashboard" element={<Dashboard />} />
             <Route path="appointments" element={<Appointments />} />
             <Route path="patients" element={<Patients />} />
+            <Route path="patients/:id" element={<PatientProfile />} />
             <Route path="records" element={<MedicalRecords />} />
+            <Route path="records/new" element={<CreateRecord />} />
             <Route path="inventory" element={<Inventory />} />
             <Route path="messages" element={<Messages />} />
           </Route>

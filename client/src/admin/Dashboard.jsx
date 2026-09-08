@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import API from '../utils/api';
-import { Users, Calendar, AlertTriangle, MessageSquare, Clock, CheckCircle, Plus } from 'lucide-react';
+import { Users, Calendar, AlertTriangle, MessageSquare, Clock, Plus, ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, PieChart, Pie } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 
 const Dashboard = () => {
   const [stats, setStats] = useState(null);
@@ -11,8 +11,8 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const res = await API.get('/stats/dashboard');
-        setStats(res.data);
+        const res = await API.get('/dashboard/stats');
+        setStats(res.data.data || res.data);
       } catch (err) {
         console.error('Error fetching dashboard stats:', err);
       } finally {
@@ -23,200 +23,166 @@ const Dashboard = () => {
   }, []);
 
   if (loading) {
-    return <div className="p-8 text-center text-slate-500">Loading Dashboard Analytics...</div>;
+    return <div className="p-8 text-center text-slate-500 font-sans text-xs">Loading Dashboard Analytics...</div>;
   }
 
-  const appointmentData = [
-    { name: 'Pending', count: stats?.appointmentsByStatus?.PENDING || 0, color: '#f59e0b' },
-    { name: 'Confirmed', count: stats?.appointmentsByStatus?.CONFIRMED || 0, color: '#3b82f6' },
-    { name: 'Completed', count: stats?.appointmentsByStatus?.COMPLETED || 0, color: '#10b981' },
-    { name: 'Cancelled', count: stats?.appointmentsByStatus?.CANCELLED || 0, color: '#ef4444' },
-  ];
-
-  const formulationData = [
-    { name: 'CHOORNAM', value: stats?.formulationCounts?.CHOORNAM || 0, color: '#16a34a' },
-    { name: 'KUDINEER', value: stats?.formulationCounts?.KUDINEER || 0, color: '#d97706' },
-    { name: 'THAILAM', value: stats?.formulationCounts?.THAILAM || 0, color: '#0284c7' },
-    { name: 'LEHYAM', value: stats?.formulationCounts?.LEHYAM || 0, color: '#9333ea' },
+  const weeklyData = stats?.weeklyAppointments || [
+    { day: 'Mon', count: 2 },
+    { day: 'Tue', count: 1 },
+    { day: 'Wed', count: 0 },
+    { day: 'Thu', count: 0 },
+    { day: 'Fri', count: 0 },
+    { day: 'Sat', count: 0 },
+    { day: 'Sun', count: 0 },
   ];
 
   return (
     <div className="space-y-6">
       
-      {/* Top Banner & Actions */}
+      {/* Top Banner & Quick Actions */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-white p-6 rounded-2xl shadow-sm border border-slate-200 gap-4">
         <div>
-          <h1 className="text-2xl font-bold font-serif text-herbal-dark">Clinical Overview</h1>
-          <p className="text-xs text-slate-500">Real-time stats for appointments, patients, and Siddha medicine inventory.</p>
+          <h1 className="text-2xl font-bold font-serif text-forest-900">Clinical Dashboard</h1>
+          <p className="text-xs font-sans text-slate-500">Real-time statistics for appointments, patients, and Siddha medicine inventory.</p>
         </div>
-        <div className="flex space-x-3">
+        <div className="flex space-x-3 font-sans">
           <Link
-            to="/admin/records"
-            className="flex items-center space-x-2 bg-herbal-dark hover:bg-siddha-900 text-white text-xs font-semibold px-4 py-2.5 rounded-xl shadow transition-colors"
+            to="/admin/records/new"
+            className="flex items-center space-x-2 bg-saffron-600 hover:bg-saffron-700 text-white text-xs font-bold uppercase tracking-wider px-4 py-2.5 rounded-xl shadow transition-colors"
           >
-            <Plus className="w-4 h-4 text-herbal-gold" />
-            <span>New Medical Record</span>
+            <Plus className="w-4 h-4 text-amber-200" />
+            <span>New Prescription</span>
           </Link>
           <Link
             to="/admin/appointments"
-            className="flex items-center space-x-2 bg-herbal-sand text-herbal-dark text-xs font-semibold px-4 py-2.5 rounded-xl hover:bg-amber-100 transition-colors"
+            className="flex items-center space-x-2 bg-cream-100 text-forest-900 text-xs font-bold uppercase tracking-wider px-4 py-2.5 rounded-xl border border-cream-200 hover:bg-cream-200 transition-colors"
           >
-            <Calendar className="w-4 h-4" />
+            <Calendar className="w-4 h-4 text-saffron-600" />
             <span>Manage Appointments</span>
           </Link>
         </div>
       </div>
 
-      {/* 4 Key Metric Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+      {/* 5 Stat Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 font-sans">
         
-        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+        <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
           <div>
-            <span className="text-xs font-semibold text-slate-500 uppercase">Total Patients</span>
-            <p className="text-3xl font-bold font-serif text-herbal-dark mt-1">{stats?.totalPatients || 0}</p>
+            <span className="text-[11px] font-bold text-slate-500 uppercase">Today's Visits</span>
+            <p className="text-2xl font-bold font-serif text-forest-900 mt-1">{stats?.todayAppointments || 0}</p>
           </div>
-          <div className="w-12 h-12 rounded-xl bg-siddha-100 text-siddha-700 flex items-center justify-center">
-            <Users className="w-6 h-6" />
+          <div className="w-10 h-10 rounded-xl bg-forest-50 text-forest-700 flex items-center justify-center">
+            <Clock className="w-5 h-5" />
           </div>
         </div>
 
-        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+        <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
           <div>
-            <span className="text-xs font-semibold text-slate-500 uppercase">Total Appointments</span>
-            <p className="text-3xl font-bold font-serif text-herbal-dark mt-1">{stats?.totalAppointments || 0}</p>
-            <span className="text-xs text-amber-600 font-medium">{stats?.appointmentsByStatus?.PENDING || 0} Pending</span>
+            <span className="text-[11px] font-bold text-slate-500 uppercase">Pending</span>
+            <p className="text-2xl font-bold font-serif text-amber-600 mt-1">{stats?.pendingCount || 0}</p>
           </div>
-          <div className="w-12 h-12 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center">
-            <Calendar className="w-6 h-6" />
+          <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-700 flex items-center justify-center">
+            <Calendar className="w-5 h-5" />
           </div>
         </div>
 
-        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+        <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
           <div>
-            <span className="text-xs font-semibold text-slate-500 uppercase">Low Stock Alert</span>
-            <p className="text-3xl font-bold font-serif text-rose-600 mt-1">{stats?.lowStockCount || 0}</p>
-            <span className="text-xs text-rose-500 font-medium">Reorder required</span>
+            <span className="text-[11px] font-bold text-slate-500 uppercase">Total Patients</span>
+            <p className="text-2xl font-bold font-serif text-forest-900 mt-1">{stats?.totalPatients || 0}</p>
           </div>
-          <div className="w-12 h-12 rounded-xl bg-rose-100 text-rose-700 flex items-center justify-center">
-            <AlertTriangle className="w-6 h-6" />
+          <div className="w-10 h-10 rounded-xl bg-sky-50 text-sky-700 flex items-center justify-center">
+            <Users className="w-5 h-5" />
           </div>
         </div>
 
-        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+        <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
           <div>
-            <span className="text-xs font-semibold text-slate-500 uppercase">Unread Messages</span>
-            <p className="text-3xl font-bold font-serif text-herbal-dark mt-1">{stats?.unreadMessages || 0}</p>
+            <span className="text-[11px] font-bold text-slate-500 uppercase">Low Stock Alerts</span>
+            <p className="text-2xl font-bold font-serif text-rose-600 mt-1">{stats?.lowStockCount || 0}</p>
           </div>
-          <div className="w-12 h-12 rounded-xl bg-sky-100 text-sky-700 flex items-center justify-center">
-            <MessageSquare className="w-6 h-6" />
+          <div className="w-10 h-10 rounded-xl bg-rose-50 text-rose-700 flex items-center justify-center">
+            <AlertTriangle className="w-5 h-5" />
+          </div>
+        </div>
+
+        <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+          <div>
+            <span className="text-[11px] font-bold text-slate-500 uppercase">Unread Messages</span>
+            <p className="text-2xl font-bold font-serif text-forest-900 mt-1">{stats?.unreadMessages || 0}</p>
+          </div>
+          <div className="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-700 flex items-center justify-center">
+            <MessageSquare className="w-5 h-5" />
           </div>
         </div>
 
       </div>
 
-      {/* Analytics Charts */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        
-        {/* Bar Chart: Appointments */}
-        <div className="lg:col-span-7 bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
-          <h3 className="text-base font-bold font-serif text-herbal-dark mb-4">Appointments Breakdown</h3>
-          <div className="h-64">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={appointmentData}>
-                <XAxis dataKey="name" stroke="#64748b" fontSize={12} />
-                <YAxis allowDecimals={false} stroke="#64748b" fontSize={12} />
-                <Tooltip />
-                <Bar dataKey="count" radius={[6, 6, 0, 0]}>
-                  {appointmentData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.color} />
-                  ))}
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
+      {/* Weekly Appointments Bar Chart */}
+      <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+        <h3 className="text-base font-bold font-serif text-forest-900 mb-4">Weekly Appointments Trend</h3>
+        <div className="h-64">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={weeklyData}>
+              <XAxis dataKey="day" stroke="#64748b" fontSize={12} />
+              <YAxis allowDecimals={false} stroke="#64748b" fontSize={12} />
+              <Tooltip />
+              <Bar dataKey="count" fill="#C45508" radius={[6, 6, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
         </div>
-
-        {/* Pie Chart: Formulations */}
-        <div className="lg:col-span-5 bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
-          <h3 className="text-base font-bold font-serif text-herbal-dark mb-4">Siddha Inventory Formulations</h3>
-          <div className="h-64 flex items-center justify-center">
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie
-                  data={formulationData}
-                  cx="50%"
-                  cy="50%"
-                  innerRadius={50}
-                  outerRadius={80}
-                  paddingAngle={5}
-                  dataKey="value"
-                >
-                  {formulationData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.color} />
-                  ))}
-                </Pie>
-                <Tooltip />
-              </PieChart>
-            </ResponsiveContainer>
-          </div>
-          <div className="grid grid-cols-2 gap-2 text-xs text-slate-600 mt-2">
-            {formulationData.map(f => (
-              <div key={f.name} className="flex items-center space-x-2">
-                <span className="w-3 h-3 rounded-full" style={{ backgroundColor: f.color }}></span>
-                <span>{f.name}: <strong>{f.value}</strong></span>
-              </div>
-            ))}
-          </div>
-        </div>
-
       </div>
 
-      {/* Recent Appointments Table */}
+      {/* Today's Appointments Quick View */}
       <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
         <div className="flex justify-between items-center mb-4">
-          <h3 className="text-base font-bold font-serif text-herbal-dark">Recent Appointment Requests</h3>
-          <Link to="/admin/appointments" className="text-xs font-semibold text-siddha-700 hover:underline">
-            View All →
+          <h3 className="text-base font-bold font-serif text-forest-900">Today's Appointment Schedule</h3>
+          <Link to="/admin/appointments" className="text-xs font-sans font-bold text-saffron-700 hover:underline flex items-center space-x-1">
+            <span>View All Appointments</span>
+            <ArrowRight className="w-3.5 h-3.5" />
           </Link>
         </div>
 
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs">
-            <thead className="bg-slate-50 text-slate-500 uppercase font-semibold">
+          <table className="w-full text-left text-xs font-sans">
+            <thead className="bg-slate-50 text-slate-600 font-bold uppercase border-b border-slate-200">
               <tr>
                 <th className="p-3">Patient</th>
                 <th className="p-3">Phone</th>
-                <th className="p-3">Date / Time</th>
-                <th className="p-3">Reason</th>
+                <th className="p-3">Time Slot</th>
+                <th className="p-3">Health Reason</th>
                 <th className="p-3">Status</th>
+                <th className="p-3 text-right">Action</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
-              {stats?.recentAppointments?.map((app) => (
-                <tr key={app.id} className="hover:bg-slate-50">
-                  <td className="p-3 font-semibold text-slate-800">{app.patient?.name}</td>
-                  <td className="p-3 text-slate-600">{app.patient?.phone}</td>
-                  <td className="p-3 text-slate-600">
-                    {new Date(app.date).toLocaleDateString()} — {app.timeSlot}
-                  </td>
-                  <td className="p-3 text-slate-700 max-w-xs truncate">{app.reason}</td>
-                  <td className="p-3">
-                    <span
-                      className={`px-2.5 py-1 rounded-full text-xs font-semibold ${
-                        app.status === 'PENDING'
-                          ? 'bg-amber-100 text-amber-800'
-                          : app.status === 'CONFIRMED'
-                          ? 'bg-blue-100 text-blue-800'
-                          : app.status === 'COMPLETED'
-                          ? 'bg-emerald-100 text-emerald-800'
-                          : 'bg-rose-100 text-rose-800'
-                      }`}
-                    >
-                      {app.status}
-                    </span>
-                  </td>
+              {stats?.todayAppointmentsList?.length === 0 ? (
+                <tr>
+                  <td colSpan={6} className="p-6 text-center text-slate-500">No appointments scheduled for today yet.</td>
                 </tr>
-              ))}
+              ) : (
+                stats?.recentAppointments?.map((app) => (
+                  <tr key={app.id} className="hover:bg-slate-50">
+                    <td className="p-3 font-bold text-slate-800">{app.patient?.name}</td>
+                    <td className="p-3 text-slate-600 font-mono">{app.patient?.phone}</td>
+                    <td className="p-3 text-saffron-700 font-bold">{app.timeSlot}</td>
+                    <td className="p-3 text-slate-700 max-w-xs truncate">{app.reason}</td>
+                    <td className="p-3">
+                      <span className="bg-amber-100 text-amber-900 px-2 py-0.5 rounded-full text-[10px] font-bold">
+                        {app.status}
+                      </span>
+                    </td>
+                    <td className="p-3 text-right">
+                      <Link
+                        to={`/admin/records/new?patientId=${app.patientId}&appointmentId=${app.id}`}
+                        className="text-forest-700 hover:text-forest-900 font-bold hover:underline"
+                      >
+                        Create EHR →
+                      </Link>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>
