@@ -1,0 +1,118 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum AppointmentStatus {
+  PENDING
+  CONFIRMED
+  COMPLETED
+  CANCELLED
+}
+
+enum Naadi {
+  VATHAM
+  PITHAM
+  KAPHAM
+  VATHAM_PITHAM
+  PITHAM_KAPHAM
+  VATHAM_KAPHAM
+  THINAI
+}
+
+enum Formulation {
+  CHOORNAM
+  KUDINEER
+  THAILAM
+  LEHYAM
+}
+
+model Admin {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  createdAt    DateTime @default(now())
+}
+
+model Patient {
+  id           String          @id @default(cuid())
+  name         String
+  age          Int
+  gender       String
+  phone        String
+  email        String?
+  address      String?
+  bloodGroup   String?
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+  appointments Appointment[]
+  records      MedicalRecord[]
+}
+
+model Appointment {
+  id        String            @id @default(cuid())
+  patient   Patient           @relation(fields: [patientId], references: [id])
+  patientId String
+  date      DateTime
+  timeSlot  String
+  reason    String
+  status    AppointmentStatus @default(PENDING)
+  notes     String?
+  record    MedicalRecord?
+  createdAt DateTime          @default(now())
+}
+
+model MedicalRecord {
+  id            String         @id @default(cuid())
+  patient       Patient        @relation(fields: [patientId], references: [id])
+  patientId     String
+  appointment   Appointment?   @relation(fields: [appointmentId], references: [id])
+  appointmentId String?        @unique
+  visitDate     DateTime
+  naadi         Naadi
+  naadiFinding  String?
+  neerkuri      String?
+  neikkuri      String?
+  ennVagai      Json?
+  diagnosis     String
+  followUpDate  DateTime?
+  prescriptions Prescription[]
+  createdAt     DateTime       @default(now())
+}
+
+model Prescription {
+  id           String        @id @default(cuid())
+  record       MedicalRecord @relation(fields: [recordId], references: [id])
+  recordId     String
+  formulation  Formulation
+  medicineName String
+  dosage       String
+  duration     String
+  instructions String?
+}
+
+model Inventory {
+  id            String      @id @default(cuid())
+  medicineName  String
+  formulation   Formulation
+  quantity      Float
+  unit          String
+  reorderLevel  Float
+  lastRestocked DateTime?
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+}
+
+model ContactMessage {
+  id        String   @id @default(cuid())
+  name      String
+  phone     String
+  email     String?
+  message   String
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+}

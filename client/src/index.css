@@ -1,0 +1,38 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-cream-50 text-slate-800 font-serif selection:bg-saffron-200 selection:text-saffron-900 antialiased;
+  }
+  h1, h2, h3, h4 {
+    font-family: 'Lora', 'Tiro Tamil', serif;
+  }
+}
+
+.siddha-card {
+  background: #ffffff;
+  border: 1px solid rgba(196, 85, 8, 0.15);
+  box-shadow: 0 4px 20px -2px rgba(45, 106, 79, 0.08);
+}
+
+.saffron-gradient {
+  background: linear-gradient(135deg, #2D6A4F 0%, #C45508 100%);
+}
+
+.text-saffron-gold {
+  color: #C45508;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #FDF6EC;
+}
+::-webkit-scrollbar-thumb {
+  background: #2D6A4F;
+  border-radius: 4px;
+}
